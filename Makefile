@@ -1,4 +1,4 @@
-AGA_MOD=01 02 03 04
+AGA_MOD=01 02 03 04 09
 AGA_FILES=$(addprefix aga_ex,$(AGA_MOD))
 AGA_KO=$(addsuffix .ko,$(AGA_FILES))
 
