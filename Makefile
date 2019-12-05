@@ -1,5 +1,5 @@
-AGA_MOD=ex01 ex02 ex03
-AGA_FILES=$(addprefix aga_,$(AGA_MOD))
+AGA_MOD=01 02 03 04
+AGA_FILES=$(addprefix aga_ex,$(AGA_MOD))
 AGA_KO=$(addsuffix .ko,$(AGA_FILES))
 
 obj-m+=$(addsuffix .o,$(AGA_FILES))
