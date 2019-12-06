@@ -1,6 +1,7 @@
 #include <linux/module.h>
 #include <linux/init.h>
 #include <linux/slab.h>
+#include <linux/list.h>
 
 void agagniere_foo(void);
 
@@ -11,28 +12,26 @@ struct aga_env
 	int              data;
 };
 
-t_aga_env* toto;
+static t_aga_env my_list;
 
 static int __init agagniere_init(void)
 {
 	t_aga_env* tmp;
+	int        i;
 
 	pr_info("Loading module \"%s\"", THIS_MODULE->name);
 	agagniere_foo();
 
-	toto = kmalloc(sizeof(struct aga_env), GFP_KERNEL);
-	toto->super = (struct list_head){&toto->super, &toto->super};
-	toto->data = 7;
-
-	tmp = toto;
-	while (tmp->data)
+	my_list = (t_aga_env){
+		.super = LIST_HEAD_INIT(my_list.super),
+		.data = 7
+	};
+	i = 0;
+	while (i < my_list.data)
 	{
-		tmp->super.next = kmalloc(sizeof(t_aga_env), GFP_KERNEL);
-		((t_aga_env*)tmp->super.next)->data = tmp->data - 1;
-		tmp->super.next->prev = (void*)tmp;
-		tmp = (t_aga_env*)tmp->super.next;
-		tmp->super.next = (void*)toto;
-		toto->super.prev = (void*)tmp;
+		tmp = kmalloc(sizeof(t_aga_env), GFP_KERNEL);
+		tmp->data = i++;
+		list_add(&tmp->super, &my_list.super);
 	}
 	return 0;
 }
@@ -44,14 +43,12 @@ static void __exit agagniere_exit(void)
 	t_aga_env*        aga_ptr;
 
 	pr_info("Unloading module \"%s\"", THIS_MODULE->name);
-	list_for_each_safe(ptr, tmp, ((struct list_head*)toto))
+	list_for_each_safe(ptr, tmp, &my_list.super)
 	{
 		aga_ptr = (t_aga_env*)ptr;
 		pr_info("Removing %i", aga_ptr->data);
 		kfree(ptr);
 	}
-	pr_info("Removing %i", toto->data);
-	kfree(toto);
 }
 
 module_init(agagniere_init);
